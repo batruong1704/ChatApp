@@ -38,7 +38,7 @@
                         <button class="btn btn-outline-primary"  data-toggle="modal" data-target="#addUserPrivate">Chat riêng</button>
                         <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#addGroup">Tạo
                             nhóm</button>
-                        <button type="button" class="btn btn-outline-danger">Thoát</button>
+                        <button type="button" class="btn btn-outline-danger" id="logoutButton">Thoát</button>
                     </div>
                 </div>
                 <h6>Room:</h6>
@@ -91,7 +91,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addUserGroupLabel">Thêm người dùng mới</h5>
+                    <h5 class="modal-title" id="addUserGroupLabel">Thêm nhóm mới</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -102,6 +102,7 @@
                             <label for="newGroup">Tên nhóm:</label>
                             <input type="text" class="form-control" id="newGroup" required>
                         </div>
+                        <div class="userList"></div>
                         <button type="submit" class="btn btn-primary">Thêm</button>
                     </form>
                 </div>

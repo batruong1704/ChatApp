@@ -3,35 +3,23 @@ package com.chat.websocket.controller;
 import com.chat.websocket.model.ChatMessage;
 import com.chat.websocket.model.MessageType;
 import com.chat.websocket.model.Room;
-import com.chat.websocket.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.*;
 
-@Controller
 @RestController
 public class ChatController {
 
     private Map<String, String> users = new HashMap<>();
-    private final ChatService chatService;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
-    @Autowired
-    public ChatController(ChatService chatService) {
-        this.chatService = chatService;
-    }
 
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
@@ -59,17 +47,16 @@ public class ChatController {
         return welcomeMessage;
     }
 
-
-    @EventListener
-    public void handleDisconnectListener(SessionDisconnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String userId = (String) headerAccessor.getSessionAttributes().get("userId");
-        if (userId != null) {
-            String username = users.get(userId);
-            if (username != null) {
-                users.remove(userId);
-                System.out.println("In Controller: Disconnected from " + userId + " | " + username);
-                messagingTemplate.convertAndSend("/topic/users", users);
+    public void removeUser(String myId){
+        Set<String> keySet = users.keySet();
+        if (myId != null) {
+            for (String key : keySet) {
+                if (myId.equals(key)){
+                    users.remove(myId);
+                    System.out.println("In Controller: Disconnected from " + myId + " | ");
+                    messagingTemplate.convertAndSend("/topic/users", users);
+                    return;
+                }
             }
         }
     }
@@ -79,6 +66,7 @@ public class ChatController {
     public Map<String, String> getUsers() {
         return users;
     }
+
 
     private Map<String, Room> rooms = new HashMap<>();
     private boolean lobbyCreated = false;
@@ -107,8 +95,5 @@ public class ChatController {
 
         return roomData;
     }
-
-
-
 
 }

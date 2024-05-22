@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // Subscribe to get users topic
         stompClient.subscribe('/topic/users', onUsersReceived);
 
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            location.reload();
+        });
+
+
         document.querySelector('.login').style.display = 'none';
         document.querySelector('.chatroom').style.display = 'block';
         document.querySelector('#selfName').innerText = username;
@@ -107,7 +112,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function switchTab(event) {
         const target = event.target;
         if (target.tagName === 'LI') {
-            const users = document.querySelectorAll('#userList li');
+            const users = document.querySelectorAll('#groupList li');
             users.forEach(user => {
                 user.style.backgroundColor = '';
             });
@@ -129,17 +134,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.querySelector('#messageForm').addEventListener('submit', sendMessage, true);
     document.getElementById('groupList').addEventListener('click', switchTab);
 
-    function createNewRoom(event) {
+    function createNewPrivateChat(event) {
         event.preventDefault();
         const newRoomName = document.querySelector('#newChatRoomPrivate').value.trim();
-        onUsersReceived;
-        if (newRoomName && stompClient) {
-            const selectedUsers = Array.from(document.querySelectorAll('#addUserPrivateForm input[name="selectedUsers"]:checked')).map(checkbox => checkbox.value);
 
-            selectedUsers.unshift(userId);
+        if (newRoomName && stompClient) {
+            const selectedUser = document.querySelector('#addUserPrivateForm input[name="selectedUser"]:checked').value;
+
             const roomData = {
                 name: newRoomName,
-                membersId: selectedUsers
+                membersId: [userId, selectedUser]
             };
 
             // Gửi yêu cầu tạo phòng mới
@@ -148,7 +152,28 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    document.querySelector('#addUserPrivateForm').addEventListener('submit', createNewRoom, true);
+    document.querySelector('#addUserPrivateForm').addEventListener('submit', createNewPrivateChat, true);
+
+    function createNewGroupChat(event) {
+        event.preventDefault();
+        const newGroupName = document.querySelector('#newGroup').value.trim();
+
+        if (newGroupName && stompClient) {
+            const selectedUsers = Array.from(document.querySelectorAll('#addGroupForm input[name="selectedUsers"]:checked')).map(checkbox => checkbox.value);
+
+            selectedUsers.unshift(userId);
+            const roomData = {
+                name: newGroupName,
+                membersId: selectedUsers
+            };
+
+            // Gửi yêu cầu tạo phòng mới
+            stompClient.send("/app/chat.createRoom", {}, JSON.stringify(roomData));
+            $('#addGroup').modal('hide');
+        }
+    }
+
+    document.querySelector('#addGroupForm').addEventListener('submit', createNewGroupChat, true);
 
     function onUsersReceived(payload) {
         const users = JSON.parse(payload.body);
@@ -159,7 +184,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }
         }
         updateUserListForPrivateChat(users);
-
+        updateUserListForGroupChat(users);
     }
 
     function updateUserListForPrivateChat(users) {
@@ -175,12 +200,47 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const userItemElement = document.createElement('div');
             userItemElement.className = 'user-item border p-2 mb-2 d-flex align-items-center';
             userItemElement.innerHTML = `
-            <div class="flex-grow-1">${username}</div>
-            <div>
-                <input class="form-check-input" type="checkbox" id="${id}" name="selectedUsers" value="${id}">
-                <label class="form-check-label" for="${id}"></label>
-            </div>
-        `;
+                <div class="flex-grow-1">${username}</div>
+                <div>
+                    <input class="form-check-input" type="radio" id="${id}" name="selectedUser" value="${id}">
+                    <label class="form-check-label" for="${id}"></label>
+                </div>
+            `;
+            userListElement.appendChild(userItemElement);
+        }
+
+        const checkboxes = userListElement.querySelectorAll('.form-check-input');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const userItem = this.parentElement.parentElement;
+                if (this.checked) {
+                    userItem.classList.add('bg-primary', 'text-white');
+                } else {
+                    userItem.classList.remove('bg-primary', 'text-white');
+                }
+            });
+        });
+    }
+
+    function updateUserListForGroupChat(users) {
+        const userListElement = document.querySelector('#addGroupForm .userList');
+        userListElement.innerHTML = '';
+
+        for (const id in users) {
+            if (id === userId) {
+                continue;
+            }
+
+            const username = users[id];
+            const userItemElement = document.createElement('div');
+            userItemElement.className = 'user-item border p-2 mb-2 d-flex align-items-center';
+            userItemElement.innerHTML = `
+                <div class="flex-grow-1">${username}</div>
+                <div>
+                    <input class="form-check-input" type="checkbox" id="${id}" name="selectedUsers" value="${id}">
+                    <label class="form-check-label" for="${id}"></label>
+                </div>
+            `;
             userListElement.appendChild(userItemElement);
         }
 
@@ -196,20 +256,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
     }
 
-
-
     $('#addUserPrivate').on('show.bs.modal', function (event) {
         stompClient.send("/app/chat.getUsers");
     });
 
+    $('#addGroup').on('show.bs.modal', function (event) {
+        stompClient.send("/app/chat.getUsers");
+    });
 
     function onRoomCreated(payload) {
         const room = JSON.parse(payload.body);
         if (room !== null) { // Kiểm tra nếu room không phải là null
             const roomListElement = document.getElementById('groupList');
-            const users = JSON.parse(payload.body);
-            updateUserListForPrivateChat(users);
-
             const isUserInRoom = room.membersId.includes(userId);
 
             if (room.id === 'lobby' || isUserInRoom) {
@@ -225,7 +283,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             console.log("Received null room data, lobby already exists.");
         }
     }
-
 
 
 });
