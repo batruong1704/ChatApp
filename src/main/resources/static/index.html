@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Form</title>
+    <link rel="stylesheet" href="/css/index.css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="login" style="display: block">
+    <div class="container full-height">
+        <div class="row justify-content-center align-items-center full-height">
+            <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+                <div class="border p-4 rounded">
+                    <h3 class="text-center mb-4">Message</h3>
+                    <form id="login">
+                        <div class="form-group">
+                            <label for="nameInput">Tên:</label>
+                            <input type="text" class="form-control" id="nameInput" placeholder="Nhập tên" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Hoàn thành</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="chatroom" style="display: none">
+    <div class="container-fluid full-height">
+        <div class="row full-height">
+            <!-- Menu -->
+            <div class="col-md-3 left-panel p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 id="selfName"></h5>
+                    <div>
+                        <button class="btn btn-outline-primary"  data-toggle="modal" data-target="#addUserPrivate">Chat riêng</button>
+                        <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#addGroup">Tạo
+                            nhóm</button>
+                        <button type="button" class="btn btn-outline-danger">Thoát</button>
+                    </div>
+                </div>
+                <h6>Room:</h6>
+                <ul class="list-group" id="groupList"></ul>
+            </div>
+            <!-- Message Area -->
+            <div class="col-md-9 p-3 position-relative full-height">
+                <div class="message-container" id="messageContainer">
+
+                </div>
+                <form id="messageForm" class="chatroom-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="messageInput" placeholder="Nhập tin nhắn" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Gửi</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addUserPrivate" tabindex="-1" role="dialog" aria-labelledby="addUserPrivateLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserPrivateLabel">Tạo nhóm mới</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserPrivateForm">
+                        <div class="form-group">
+                            <label for="newChatRoomPrivate">Tên đoạn chat:</label>
+                            <input type="text" class="form-control" id="newChatRoomPrivate" required>
+                        </div>
+                        <div class="userList"></div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form thêm người dùng -->
+    <div class="modal fade" id="addGroup" tabindex="-1" role="dialog" aria-labelledby="addUserGroupLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserGroupLabel">Thêm người dùng mới</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addGroupForm">
+                        <div class="form-group">
+                            <label for="newGroup">Tên nhóm:</label>
+                            <input type="text" class="form-control" id="newGroup" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="/js/index.js"></script>
+
+</body>
+</html>
